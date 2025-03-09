@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DHT11 AND LDR SENSOR DATA</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .date-container {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .dashboard {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        .sensor-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 350px;
+            padding: 15px;
+            border: 2px solid black;
+            border-radius: 10px;
+            background-color: #fff;
+        }
+        .sensor-card img {
+            width: 50px;
+            height: 50px;
+        }
+        .sensor-text {
+            flex-grow: 1;
+            text-align: left;
+            font-size: 18px;
+            font-weight: bold;
+            padding-left: 10px;
+        }
+        .sensor-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>DHT11 AND LDR SENSOR DATA DASHBOARD</h1>
+    <div class="date-container">
+        <span>DATE: </span><span id="timestamp">DATE/TIME</span>
+    </div>
+
+    <div class="dashboard">
+        <div class="sensor-card">
+            <img src="https://codverterassets.blob.core.windows.net/webappsprod/a48/a3214/img/webapp_res/app_image.png" alt="Temperature">
+            <span class="sensor-text">TEMPERATURE:</span>
+            <span class="sensor-value" id="temperature">C</span>
+        </div>
+
+        <div class="sensor-card">
+            <img src="https://cdn-icons-png.flaticon.com/512/5189/5189235.png" alt="Humidity">
+            <span class="sensor-text">HUMIDITY:</span>
+            <span class="sensor-value" id="humidity">H</span>
+        </div>
+
+        <div class="sensor-card">
+            <img src="https://cdn-icons-png.flaticon.com/128/869/869869.png" alt="Light">
+            <span class="sensor-text">LIGHT LEVEL:</span>
+            <span class="sensor-value" id="light">L</span>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getFirestore, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBNQqizLbeD3qXBnCk7yME-3TX5qdfvVOI",
+            authDomain: "integproject-5ae8a.firebaseapp.com",
+            projectId: "integproject-5ae8a",
+            storageBucket: "integproject-5ae8a.firebasestorage.app",
+            messagingSenderId: "1087939601728",
+            appId: "1:1087939601728:web:e7ecb4b9397eefc80846a5",
+            };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function fetchData() {
+            const q = query(collection(db, "sd"), orderBy("timestamp", "desc"), limit(1));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                const doc = querySnapshot.docs[0];
+                const data = doc.data();
+
+                document.getElementById("temperature").innerText = `${data.temperature} °C`;
+                document.getElementById("humidity").innerText = `${data.humidity} %`;
+                document.getElementById("light").innerText = data.light === 1 ? "0" : "1";
+                document.getElementById("timestamp").innerText = data.timestamp;
+            } else {
+                console.log("No sensor data found.");
+            }
+        }
+
+        setInterval(fetchData, 5000);
+        fetchData();
+    </script>
+
+</body>
+</html>
